@@ -170,6 +170,12 @@ export default function LandingPage() {
             alt="macSaas.com.br"
             className="h-12 object-contain"
           />
+          <nav className="hidden md:flex items-center gap-6">
+            <a href="#funcionalidades" className="text-sm text-gray-300 hover:text-white transition-colors">Funcionalidades</a>
+            <a href="#como-funciona" className="text-sm text-gray-300 hover:text-white transition-colors">Como Funciona</a>
+            <a href="#planos" className="text-sm text-gray-300 hover:text-white transition-colors">Planos</a>
+            <a href="#depoimentos" className="text-sm text-gray-300 hover:text-white transition-colors">Depoimentos</a>
+          </nav>
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -426,7 +432,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section id="features" className="py-24">
+      <section id="funcionalidades" className="py-24">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
             <Badge variant="secondary" className="mb-4">
@@ -464,7 +470,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works */}
-      <section className="bg-gradient-to-b from-gray-50 to-white py-24">
+      <section id="como-funciona" className="bg-gradient-to-b from-gray-50 to-white py-24">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
             <Badge variant="secondary" className="mb-4">
@@ -575,7 +581,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-gray-50 py-24">
+      <section id="depoimentos" className="bg-gray-50 py-24">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
             <Badge variant="secondary" className="mb-4">
