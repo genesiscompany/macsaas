@@ -227,3 +227,47 @@ export interface CaixaDiario {
   formaPagamento: FormaPagamento;
   data: string;
 }
+
+export type AssinaturaStatus = "pending" | "authorized" | "paused" | "cancelled";
+
+export const ASSINATURA_STATUS_LABELS: Record<AssinaturaStatus, string> = {
+  pending: "Pendente",
+  authorized: "Ativa",
+  paused: "Pausada",
+  cancelled: "Cancelada",
+};
+
+export interface Assinatura {
+  id: string;
+  oficinaId: string;
+  planoId: string;
+  mpPreapprovalId?: string;
+  mpInitPoint?: string;
+  status: AssinaturaStatus;
+  valor: number;
+  dataInicio?: string;
+  proximoPagamento?: string;
+  ultimoPagamento?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PagamentoStatus = "approved" | "pending" | "rejected" | "refunded";
+
+export const PAGAMENTO_STATUS_LABELS: Record<PagamentoStatus, string> = {
+  approved: "Aprovado",
+  pending: "Pendente",
+  rejected: "Rejeitado",
+  refunded: "Reembolsado",
+};
+
+export interface Pagamento {
+  id: string;
+  assinaturaId: string;
+  oficinaId: string;
+  mpPaymentId?: string;
+  valor: number;
+  status: PagamentoStatus;
+  dataPagamento?: string;
+  createdAt: string;
+}

@@ -13,6 +13,7 @@ import SuperAdminDashboard from "@/pages/super-admin/Dashboard";
 import Oficinas from "@/pages/super-admin/Oficinas";
 import Planos from "@/pages/super-admin/Planos";
 import SuperAdminRelatorios from "@/pages/super-admin/Relatorios";
+import Assinaturas from "@/pages/super-admin/Assinaturas";
 
 import OficinaLayout from "@/components/OficinaLayout";
 import OficinaDashboard from "@/pages/oficina/Dashboard";
@@ -68,6 +69,11 @@ function AppRoutes() {
       <Route path="/super-admin/planos">
         <RequireSuperAdmin>
           <Planos />
+        </RequireSuperAdmin>
+      </Route>
+      <Route path="/super-admin/assinaturas">
+        <RequireSuperAdmin>
+          <Assinaturas />
         </RequireSuperAdmin>
       </Route>
       <Route path="/super-admin/relatorios">

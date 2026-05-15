@@ -8,7 +8,7 @@ import {
   CreditCard,
   BarChart3,
   LogOut,
-  Wrench,
+  Repeat,
   ShieldCheck,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -17,6 +17,7 @@ const navItems = [
   { href: "/super-admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/super-admin/oficinas", label: "Oficinas", icon: Building2 },
   { href: "/super-admin/planos", label: "Planos", icon: CreditCard },
+  { href: "/super-admin/assinaturas", label: "Assinaturas", icon: Repeat },
   { href: "/super-admin/relatorios", label: "Relatórios", icon: BarChart3 },
 ];
 

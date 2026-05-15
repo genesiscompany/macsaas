@@ -14,6 +14,8 @@ import type {
   ContaPagar,
   CaixaDiario,
   User,
+  Assinatura,
+  Pagamento,
 } from "./types";
 
 // ==========================================
@@ -34,6 +36,8 @@ interface StoreData {
   contasReceber: ContaReceber[];
   contasPagar: ContaPagar[];
   caixaDiario: CaixaDiario[];
+  assinaturas: Assinatura[];
+  pagamentos: Pagamento[];
   osCounter: Record<string, number>;
   loaded: boolean;
 }
@@ -59,6 +63,8 @@ const cache: StoreData = {
   contasReceber: [],
   contasPagar: [],
   caixaDiario: [],
+  assinaturas: [],
+  pagamentos: [],
   osCounter: {},
   loaded: false,
 };
@@ -214,6 +220,36 @@ function mapPlanoFromDb(row: Record<string, unknown>): Plano {
   };
 }
 
+function mapAssinaturaFromDb(row: Record<string, unknown>): Assinatura {
+  return {
+    id: row.id as string,
+    oficinaId: row.oficina_id as string,
+    planoId: row.plano_id as string,
+    mpPreapprovalId: (row.mp_preapproval_id as string) || undefined,
+    mpInitPoint: (row.mp_init_point as string) || undefined,
+    status: row.status as Assinatura["status"],
+    valor: Number(row.valor),
+    dataInicio: (row.data_inicio as string) || undefined,
+    proximoPagamento: (row.proximo_pagamento as string) || undefined,
+    ultimoPagamento: (row.ultimo_pagamento as string) || undefined,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
+}
+
+function mapPagamentoFromDb(row: Record<string, unknown>): Pagamento {
+  return {
+    id: row.id as string,
+    assinaturaId: row.assinatura_id as string,
+    oficinaId: row.oficina_id as string,
+    mpPaymentId: (row.mp_payment_id as string) || undefined,
+    valor: Number(row.valor),
+    status: row.status as Pagamento["status"],
+    dataPagamento: (row.data_pagamento as string) || undefined,
+    createdAt: row.created_at as string,
+  };
+}
+
 // ==========================================
 // Load all data from Supabase into cache
 // ==========================================
@@ -269,6 +305,14 @@ export async function loadAllData(): Promise<void> {
     cache.contasPagar = (contasPagarRes.data ?? []).map(mapContaPagarFromDb);
     cache.caixaDiario = (caixaDiarioRes.data ?? []).map(mapCaixaDiarioFromDb);
 
+    // Load assinaturas and pagamentos
+    const [assinaturasRes, pagamentosRes] = await Promise.all([
+      supabase.from("assinaturas").select("*"),
+      supabase.from("pagamentos").select("*"),
+    ]);
+    cache.assinaturas = (assinaturasRes.data ?? []).map(mapAssinaturaFromDb);
+    cache.pagamentos = (pagamentosRes.data ?? []).map(mapPagamentoFromDb);
+
     // Build pecas map
     const pecasMap: Record<string, { itemEstoqueId: string; quantidade: number }[]> = {};
     for (const p of osPecasRes.data ?? []) {
@@ -311,23 +355,28 @@ export function getUsers(): User[] {
 export function authenticateUser(
   email: string,
   senha: string,
-): User | null {
+): { user: User | null; error?: string } {
   if (email === "admin@mecanisaas.com" && senha === "admin123") {
-    return cache.users.find((u) => u.role === "super_admin") ?? null;
+    return { user: cache.users.find((u) => u.role === "super_admin") ?? null };
   }
   const oficina = cache.oficinas.find(
-    (o) => o.adminEmail === email && o.adminSenha === senha && o.ativa,
+    (o) => o.adminEmail === email && o.adminSenha === senha,
   );
   if (oficina) {
+    if (!oficina.ativa) {
+      return { user: null, error: "Assinatura vencida ou oficina desativada. Entre em contato com o suporte." };
+    }
     return {
-      id: `oficina-user-${oficina.id}`,
-      name: oficina.adminNome,
-      email: oficina.adminEmail,
-      role: "oficina_admin",
-      oficinaId: oficina.id,
+      user: {
+        id: `oficina-user-${oficina.id}`,
+        name: oficina.adminNome,
+        email: oficina.adminEmail,
+        role: "oficina_admin",
+        oficinaId: oficina.id,
+      },
     };
   }
-  return null;
+  return { user: null, error: "Email ou senha inválidos" };
 }
 
 // ==========================================
@@ -1054,4 +1103,54 @@ export function getOficinaDashboardStats(oficinaId: string) {
     saldo: receitasMes - despesasMes,
     osEmAndamento,
   };
+}
+
+// ==========================================
+// Assinaturas
+// ==========================================
+
+export function getAssinaturas(): Assinatura[] {
+  return cache.assinaturas;
+}
+
+export function getAssinaturasOficina(oficinaId: string): Assinatura[] {
+  return cache.assinaturas.filter((a) => a.oficinaId === oficinaId);
+}
+
+export function getAssinaturaAtiva(oficinaId: string): Assinatura | undefined {
+  return cache.assinaturas.find(
+    (a) => a.oficinaId === oficinaId && (a.status === "authorized" || a.status === "pending"),
+  );
+}
+
+export function addAssinaturaToCache(assinatura: Assinatura): void {
+  cache.assinaturas.push(assinatura);
+}
+
+export function updateAssinaturaInCache(id: string, updates: Partial<Assinatura>): void {
+  const idx = cache.assinaturas.findIndex((a) => a.id === id);
+  if (idx >= 0) {
+    cache.assinaturas[idx] = { ...cache.assinaturas[idx], ...updates };
+  }
+}
+
+export async function reloadAssinaturas(): Promise<void> {
+  const { data } = await supabase.from("assinaturas").select("*");
+  cache.assinaturas = (data ?? []).map(mapAssinaturaFromDb);
+}
+
+// ==========================================
+// Pagamentos
+// ==========================================
+
+export function getPagamentos(): Pagamento[] {
+  return cache.pagamentos;
+}
+
+export function getPagamentosOficina(oficinaId: string): Pagamento[] {
+  return cache.pagamentos.filter((p) => p.oficinaId === oficinaId);
+}
+
+export function getPagamentosAssinatura(assinaturaId: string): Pagamento[] {
+  return cache.pagamentos.filter((p) => p.assinaturaId === assinaturaId);
 }

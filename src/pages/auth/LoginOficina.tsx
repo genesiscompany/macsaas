@@ -23,11 +23,11 @@ export default function LoginOficina() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    const success = login(email, senha);
-    if (success) {
+    const result = login(email, senha);
+    if (result.success) {
       navigate("/oficina/dashboard");
     } else {
-      setError("Email ou senha inválidos");
+      setError(result.error || "Email ou senha inválidos");
     }
   }
 

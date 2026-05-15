@@ -10,7 +10,7 @@ import { authenticateUser } from "./store";
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, senha: string) => boolean;
+  login: (email: string, senha: string) => { success: boolean; error?: string };
   logout: () => void;
 }
 
@@ -28,14 +28,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  const login = useCallback((email: string, senha: string): boolean => {
-    const u = authenticateUser(email, senha);
-    if (u) {
-      setUser(u);
-      localStorage.setItem(AUTH_KEY, JSON.stringify(u));
-      return true;
+  const login = useCallback((email: string, senha: string): { success: boolean; error?: string } => {
+    const result = authenticateUser(email, senha);
+    if (result.user) {
+      setUser(result.user);
+      localStorage.setItem(AUTH_KEY, JSON.stringify(result.user));
+      return { success: true };
     }
-    return false;
+    return { success: false, error: result.error };
   }, []);
 
   const logout = useCallback(() => {
