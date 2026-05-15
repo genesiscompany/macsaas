@@ -170,7 +170,7 @@ export default function LandingPage() {
             alt="macSaas.com.br"
             className="h-12 object-contain"
           />
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="flex items-center gap-4 md:gap-6">
             <a href="#funcionalidades" className="text-sm text-gray-300 hover:text-white transition-colors">Funcionalidades</a>
             <a href="#como-funciona" className="text-sm text-gray-300 hover:text-white transition-colors">Como Funciona</a>
             <a href="#planos" className="text-sm text-gray-300 hover:text-white transition-colors">Planos</a>
