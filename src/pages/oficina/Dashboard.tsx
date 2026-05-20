@@ -13,6 +13,9 @@ import {
   getDespesas,
   getEstoque,
   getClientes,
+  getOficina,
+  getPlanos,
+  getAssinaturaAtiva,
 } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import {
@@ -23,6 +26,9 @@ import {
   Users,
   Package,
   AlertTriangle,
+  CreditCard,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { OS_STATUS_LABELS, RECEITA_CATEGORIAS, type ReceitaCategoria } from "@/lib/types";
@@ -53,6 +59,11 @@ export default function OficinaDashboard() {
   const osRecentes = getOrdensServico(oficinaId).slice(-5).reverse();
 
   const estoqueBaixo = estoque.filter((i) => i.quantidade <= i.estoqueMinimo);
+
+  const oficina = getOficina(oficinaId);
+  const planos = getPlanos();
+  const planoAtual = planos.find((p) => p.id === oficina?.planoId);
+  const assinatura = getAssinaturaAtiva(oficinaId);
 
   const receitasPorCategoria = useMemo(() => {
     const map = new Map<ReceitaCategoria, number>();
@@ -135,6 +146,36 @@ export default function OficinaDashboard() {
           Visão geral da sua oficina
         </p>
       </div>
+
+      {/* Plano Card */}
+      {planoAtual && (
+        <Card className="border-emerald-200 bg-gradient-to-r from-emerald-50 to-white">
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
+                <CreditCard className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Seu Plano</p>
+                <p className="text-lg font-bold">{planoAtual.nome} — {formatCurrency(planoAtual.valor)}/{planoAtual.periodicidade}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {assinatura ? (
+                <Badge variant={assinatura.status === "authorized" ? "default" : "secondary"} className="gap-1">
+                  {assinatura.status === "authorized" ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                  {assinatura.status === "authorized" ? "Ativa" : "Pendente"}
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="gap-1">
+                  <Clock className="h-3 w-3" />
+                  Sem assinatura
+                </Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stat Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
