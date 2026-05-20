@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createClient } from "@supabase/supabase-js";
 
 const MP_API = "https://api.mercadopago.com";
