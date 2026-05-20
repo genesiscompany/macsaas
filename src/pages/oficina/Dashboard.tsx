@@ -148,34 +148,46 @@ export default function OficinaDashboard() {
       </div>
 
       {/* Plano Card */}
-      {planoAtual && (
-        <Card className="border-emerald-200 bg-gradient-to-r from-emerald-50 to-white">
-          <CardContent className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
-                <CreditCard className="h-5 w-5 text-emerald-600" />
-              </div>
+      <Card className="border-emerald-200 bg-gradient-to-r from-emerald-50 to-white">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <CreditCard className="h-5 w-5 text-emerald-600" />
+            {planoAtual ? "Seu Plano" : "Planos Disponíveis"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {planoAtual ? (
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Seu Plano</p>
                 <p className="text-lg font-bold">{planoAtual.nome} — {formatCurrency(planoAtual.valor)}/{planoAtual.periodicidade}</p>
               </div>
+              <div className="flex items-center gap-2">
+                {assinatura ? (
+                  <Badge variant={assinatura.status === "authorized" ? "default" : "secondary"} className="gap-1">
+                    {assinatura.status === "authorized" ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                    {assinatura.status === "authorized" ? "Ativa" : "Pendente"}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="gap-1">
+                    <Clock className="h-3 w-3" />
+                    Sem assinatura
+                  </Badge>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              {assinatura ? (
-                <Badge variant={assinatura.status === "authorized" ? "default" : "secondary"} className="gap-1">
-                  {assinatura.status === "authorized" ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                  {assinatura.status === "authorized" ? "Ativa" : "Pendente"}
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="gap-1">
-                  <Clock className="h-3 w-3" />
-                  Sem assinatura
-                </Badge>
-              )}
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-3">
+              {planos.map((plano) => (
+                <div key={plano.id} className={`rounded-lg border p-3 text-center transition-all hover:border-emerald-400 hover:shadow ${oficina?.planoId === plano.id ? "border-emerald-500 bg-emerald-50" : "border-gray-200"}`}>
+                  <p className="font-bold text-lg">{plano.nome}</p>
+                  <p className="text-2xl font-bold text-emerald-600">{formatCurrency(plano.valor)}</p>
+                  <p className="text-xs text-muted-foreground">/{plano.periodicidade}</p>
+                </div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
       {/* Stat Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
